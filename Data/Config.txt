@@ -1,0 +1,6 @@
+{
+	"playerPrefsKeyValue":{
+		"PLAYER_PREFS_RECORD":"PLAYER_PREFS_RECORD",
+		"PLAYER_PREFS_MUSIC_VOLUME":"MUSIC_VOLUME",
+	},
+}
