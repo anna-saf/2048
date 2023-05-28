@@ -6,14 +6,22 @@ using static GameModel;
 
 public class DeckModel : MonoBehaviour
 {
+    [SerializeField] private Transform spawnTransform;
     [SerializeField] private NumColorSO[] numColorSOArray;
-    [SerializeField] private GameObject cell;
+    [SerializeField] private CellView cell;
+    [SerializeField] private CellAnimationView cellAnimation;
     [SerializeField] private string[] numForRandomGenerate;
     [SerializeField] private int deckSize;
     [SerializeField] private NumColorSO emptyElement;
+    [SerializeField] private float moveTime = .1f;
+    [SerializeField] private float sizeChangeTime = .1f;
 
+    public Transform SpawnTransform { get { return spawnTransform; } }
+    public float MoveTime { get { return moveTime; } }
+    public float SizeChangeTime { get { return moveTime; } }
     public NumColorSO[] NumColorSOArray { get { return numColorSOArray; } }
-    public GameObject Cell { get { return cell; } }
+    public CellView Cell { get { return cell; } }
+    public CellAnimationView CellAnimation { get { return cellAnimation; } }
     public string[] NumForRandomGenerate { get { return numForRandomGenerate; } }
     public int DeckSize { get { return deckSize; } }
     public NumColorSO EmptyElement { get { return emptyElement; } }

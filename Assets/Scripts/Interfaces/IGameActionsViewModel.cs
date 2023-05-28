@@ -4,5 +4,5 @@ using UnityEngine;
 
 public interface IGameActionsViewModel
 {
-    void MoveCells(SwipeData swipeData, ICellViewModel[,] cells);
+    void MoveCells(SwipeData swipeData, CellViewModel[,] cells);
 }

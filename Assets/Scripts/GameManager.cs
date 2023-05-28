@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
         {
             for (int c = 0; c < DeckModel.Instance.DeckSize; c++)
             {
-                if (deck.cellViewModels[r, c].Num.Value == DeckModel.Instance.EmptyElement.value)
+                if (deck.cellViews[r, c].cellViewModel.Num.Value == DeckModel.Instance.EmptyElement.value)
                 {
                     return false;
                 }

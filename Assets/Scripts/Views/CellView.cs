@@ -9,12 +9,18 @@ public class CellView : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI deckElementNumTMP;
     [SerializeField] private Image deckElementColorImage;
-    
-    private CellViewModel cellViewModel;
 
-    private void Awake()
+    public CellViewModel cellViewModel;
+
+
+    public void BindViewModel(CellViewModel viewModel)
     {
-        cellViewModel = gameObject.GetComponent<CellViewModel>();
+        cellViewModel = viewModel;
+        SubscribeOnChanges();
+    }
+
+    protected void SubscribeOnChanges()
+    {
         cellViewModel.Num.Subscribe(_ =>
         {
             deckElementNumTMP.text = _;

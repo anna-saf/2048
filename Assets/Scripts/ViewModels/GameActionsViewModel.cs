@@ -1,25 +1,28 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UniRx;
 using UnityEngine;
+using System.Diagnostics;
+using UniRx;
 
-public class GameActionsViewModel : MonoBehaviour, IGameActionsViewModel
+public class GameActionsViewModel
 {
     public ReactiveProperty<int> score { get; private set; }
-    private ICellViewModel[,] cellViewModels;
+    private CellView[,] cellViews;
     private DeckModel model;
+    private GameScoreViewModel scoreViewModel;
+    //private CellAnimator cellAnimator;
 
-    private void Start()
+    public void Init()
     {
+        scoreViewModel = new GameScoreViewModel();
         model = DeckModel.Instance;
+        //cellAnimator = new CellAnimator(model.SpawnTransform);
         score = model.score;
         score.Value = 0;
     }
 
-    public void MoveCells(SwipeData swipeData, ICellViewModel[,] cells)
+    public void MoveCells(SwipeData swipeData, CellView[,] cells)
     {
-        cellViewModels = cells;
+        cellViews = cells;
 
         switch (swipeData.direction)
         {
@@ -43,134 +46,139 @@ public class GameActionsViewModel : MonoBehaviour, IGameActionsViewModel
 
     private void MoveVertical(int rowCounterStart, int direction)
     {
-        int lastRowForOffset = Math.Abs(rowCounterStart - (model.DeckSize - 1));
-        SkipEmptyCellsVertical(rowCounterStart, direction, lastRowForOffset);
-        MergeEqualsCellsVertical(rowCounterStart, direction, lastRowForOffset);
-    }
-    
-    private void SkipEmptyCellsVertical(int rowCounterStart, int direction, int lastRowForOffset)
-    {
         for (int c = 0; c < model.DeckSize; c++)
         {
             int rowCounter = rowCounterStart;
             for (int r = 0; r < model.DeckSize; r++)
             {
-                if (cellViewModels[rowCounter, c].Num.Value == model.EmptyElement.value)
+                if (cellViews[rowCounter, c].cellViewModel.Num.Value != model.EmptyElement.value)
                 {
-
-                    OffsetElementVertical(rowCounter, c, lastRowForOffset, direction);
-                    rowCounter -= direction;
+                    OffsetCellVertical(direction, c, rowCounter, rowCounterStart);
                 }
+
                 rowCounter += direction;
             }
         }
+        //int lastRowForOffset = Math.Abs(rowCounterStart - (model.DeckSize - 1));
+        //SkipEmptyCellsVertical(rowCounterStart, direction, lastRowForOffset);
+        //MergeEqualsCellsVertical(rowCounterStart, direction, lastRowForOffset);
     }
 
-    private void MergeEqualsCellsVertical(int rowCounterStart, int direction, int lastRowForOffset)
+    private void OffsetCellVertical(int direction, int column, int startRow, int firstRow)
     {
-        for (int c = 0; c < model.DeckSize; c++)
+        for(int row = startRow; row != firstRow; row -= direction)
         {
-            int rowCounter = rowCounterStart;
-            for (int r = 0; r < model.DeckSize - 1; r++)
+            if (cellViews[row-direction, column].cellViewModel.Num.Value == model.EmptyElement.value)
             {
-                if (cellViewModels[rowCounter, c].Num.Value != model.EmptyElement.value)
-                {
-                    if (cellViewModels[rowCounter, c].Num.Value == cellViewModels[rowCounter + direction, c].Num.Value)
-                    {
-                        cellViewModels[rowCounter + direction, c].ChangeElementNumColorSO(model.EmptyElement);
-                        OffsetElementVertical(rowCounter + direction, c, lastRowForOffset, direction);
-                        string sum = SumDeckElements(cellViewModels[rowCounter, c]);
-                        bool endGame = GameManager.Instance.IsWin(sum);
-                        if (endGame)
-                        {
-                            return;
-                        }
+                cellViews[row-direction, column].cellViewModel.ChangeElementColorNum(
+                    model.GetColorByNum(cellViews[row, column].cellViewModel.Num.Value), 
+                    cellViews[row, column].cellViewModel.Num.Value
+                    );
+                cellViews[row, column].cellViewModel.ChangeElementNumColorSO(model.EmptyElement);
 
-                    }
-                    rowCounter += direction;
-                }
-                else break;
+                //CellAnimator.Instance.CellTransition(cellViews[row, column], cellViews[row - direction, column], true);
+
+                cellViews[row - direction, column].cellViewModel.VisualUpdate();
+                cellViews[row, column].cellViewModel.VisualUpdate();
+            }
+            else
+            {
+                TryMergeVertical(row, column, direction);
             }
         }
     }
 
-    private void OffsetElementVertical(int startIdx, int c, int lastRowForChange, int direction)
+    private void TryMergeVertical(int row, int column, int direction)
     {
-        for (int r = startIdx; r != lastRowForChange; r += direction)
+        if ((cellViews[row, column].cellViewModel.Num.Value == cellViews[row-direction, column].cellViewModel.Num.Value) && 
+            !cellViews[row - direction, column].cellViewModel.alreadyMerged &&
+            !cellViews[row, column].cellViewModel.alreadyMerged)
         {
-            cellViewModels[r, c].ChangeElementColorNum(model.GetColorByNum(cellViewModels[r + direction, c].Num.Value), cellViewModels[r + direction, c].Num.Value);
-        }
+            cellViews[row - direction, column].cellViewModel.alreadyMerged = true;
+            scoreViewModel.UpdateScore(Convert.ToInt32(cellViews[row, column].cellViewModel.Num.Value));
+            string newNum = (Convert.ToInt32(cellViews[row, column].cellViewModel.Num.Value) + 
+                            Convert.ToInt32(cellViews[row-direction, column].cellViewModel.Num.Value)).ToString();
 
-        cellViewModels[lastRowForChange, c].ChangeElementNumColorSO(model.EmptyElement);
+            cellViews[row-direction, column].cellViewModel.ChangeElementColorNum(model.GetColorByNum(newNum), newNum);
+            cellViews[row, column].cellViewModel.ChangeElementNumColorSO(model.EmptyElement);
+
+            //CellAnimator.Instance.CellTransition(cellViews[row, column], cellViews[row-direction, column], true);
+
+            cellViews[row - direction, column].cellViewModel.VisualUpdate();
+            cellViews[row, column].cellViewModel.VisualUpdate();
+
+            bool endGame = GameManager.Instance.IsWin(newNum);
+            if (endGame)
+            {
+                return;
+            }
+        }
     }
 
     private void MoveHorizontal(int columnCounterStart, int direction)
-    {
-        int lastColumnForOffset = Math.Abs(columnCounterStart - (model.DeckSize - 1));
-        SkipEmptyCellsHorizontal(columnCounterStart, direction, lastColumnForOffset);
-        MergeEqualsCellsHorizontal(columnCounterStart, direction, lastColumnForOffset);
-    }
-
-    private void SkipEmptyCellsHorizontal(int columnCounterStart, int direction, int lastColumnForOffset)
     {
         for (int r = 0; r < model.DeckSize; r++)
         {
             int colCounter = columnCounterStart;
             for (int c = 0; c < model.DeckSize; c++)
             {
-                if (cellViewModels[r, colCounter].Num.Value == model.EmptyElement.value)
+                if (cellViews[r, colCounter].cellViewModel.Num.Value != model.EmptyElement.value)
                 {
-                    OffsetElementHorizontal(colCounter, r, lastColumnForOffset, direction);
-                    colCounter -= direction;
+                    OffsetCellHorizontal(direction, colCounter, r, columnCounterStart);
                 }
+
                 colCounter += direction;
             }
         }
     }
 
-    private void MergeEqualsCellsHorizontal(int columnCounterStart, int direction, int lastColumnForOffset)
+    private void OffsetCellHorizontal(int direction, int startColumn, int row, int firstColumn)
     {
-        for (int r = 0; r < model.DeckSize; r++)
+        for (int column = startColumn; column != firstColumn; column -= direction)
         {
-            int colCounter = columnCounterStart;
-            for (int c = 0; c < model.DeckSize - 1; c++)
+            if (cellViews[row, column - direction].cellViewModel.Num.Value == model.EmptyElement.value)
             {
-                if (cellViewModels[r, colCounter].Num.Value != model.EmptyElement.value)
-                {
-                    if (cellViewModels[r, colCounter].Num.Value == cellViewModels[r, colCounter + direction].Num.Value)
-                    {
-                        cellViewModels[r, colCounter + direction].ChangeElementNumColorSO(model.EmptyElement);
-                        OffsetElementHorizontal(colCounter + direction, r, lastColumnForOffset, direction);
-                        string sum = SumDeckElements(cellViewModels[r, colCounter]);
-                        bool endGame = GameManager.Instance.IsWin(sum);
-                        if (endGame)
-                        {
-                            return;
-                        }
-                    }
-                    colCounter += direction;
-                }
-                else break;
+                cellViews[row, column - direction].cellViewModel.ChangeElementColorNum(
+                    model.GetColorByNum(cellViews[row, column].cellViewModel.Num.Value),
+                    cellViews[row, column].cellViewModel.Num.Value
+                    );
+                cellViews[row, column].cellViewModel.ChangeElementNumColorSO(model.EmptyElement);
+
+                //CellAnimator.Instance.CellTransition(cellViews[row, column], cellViews[row, column - direction], true);
+
+                cellViews[row, column - direction].cellViewModel.VisualUpdate();
+                cellViews[row, column].cellViewModel.VisualUpdate();
+            }
+            else
+            {
+                TryMergeHorizontal(row, column, direction);
             }
         }
     }
-
-    private void OffsetElementHorizontal(int startIdx, int r, int lastColumnForChange, int direction)
+    private void TryMergeHorizontal(int row, int column, int direction)
     {
-        for (int c = startIdx; c != lastColumnForChange; c += direction)
+        if ((cellViews[row, column].cellViewModel.Num.Value == cellViews[row, column - direction].cellViewModel.Num.Value) &&
+            !cellViews[row, column - direction].cellViewModel.alreadyMerged &&
+            !cellViews[row, column].cellViewModel.alreadyMerged)
         {
-            cellViewModels[r, c].ChangeElementColorNum(model.GetColorByNum(cellViewModels[r, c + direction].Num.Value), cellViewModels[r, c + direction].Num.Value);
+            cellViews[row, column - direction].cellViewModel.alreadyMerged = true;
+            scoreViewModel.UpdateScore(Convert.ToInt32(cellViews[row, column].cellViewModel.Num.Value));
+            string newNum = (Convert.ToInt32(cellViews[row, column].cellViewModel.Num.Value) +
+                            Convert.ToInt32(cellViews[row, column - direction].cellViewModel.Num.Value)).ToString();
+
+            cellViews[row, column - direction].cellViewModel.ChangeElementColorNum(model.GetColorByNum(newNum), newNum);
+            cellViews[row, column].cellViewModel.ChangeElementNumColorSO(model.EmptyElement);
+
+            //CellAnimator.Instance.CellTransition(cellViews[row, column], cellViews[row-direction, column], true);
+
+            cellViews[row, column - direction].cellViewModel.VisualUpdate();
+            cellViews[row, column].cellViewModel.VisualUpdate();
+
+            bool endGame = GameManager.Instance.IsWin(newNum);
+            if (endGame)
+            {
+                return;
+            }
         }
-        cellViewModels[r, lastColumnForChange].ChangeElementNumColorSO(model.EmptyElement);
     }
-
-    private string SumDeckElements(ICellViewModel deckElement)
-    {
-        model.score.Value += Convert.ToInt32(deckElement.Num.Value);
-        string text = (Convert.ToInt32(deckElement.Num.Value) * 2).ToString();
-        deckElement.ChangeElementColorNum(model.GetColorByNum(text), text);
-
-        return text;
-    }
-
 }

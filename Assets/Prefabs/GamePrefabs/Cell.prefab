@@ -93,7 +93,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 183.65
+  m_fontSize: 18
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -221,7 +221,6 @@ GameObject:
   m_Component:
   - component: {fileID: 538572406416466222}
   - component: {fileID: 1555521300422620803}
-  - component: {fileID: 3853805060654599842}
   m_Layer: 5
   m_Name: Cell
   m_TagString: Untagged
@@ -265,15 +264,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deckElementNumTMP: {fileID: 1464813474038785217}
   deckElementColorImage: {fileID: 1952884492917285381}
---- !u!114 &3853805060654599842
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2587581533645583596}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99cb975d9167ffa46a7ff0c114dee3dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

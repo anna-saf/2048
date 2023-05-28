@@ -636,6 +636,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1257739763}
   m_CullTransparentMesh: 0
+--- !u!1 &1318383622
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1318383624}
+  - component: {fileID: 1318383623}
+  m_Layer: 0
+  m_Name: CellAnimator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1318383623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1318383622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cf01389b805aad4eb0b3b30ed38bc3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1318383624
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1318383622}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1664063321
 GameObject:
   m_ObjectHideFlags: 0
@@ -1100,7 +1144,6 @@ GameObject:
   - component: {fileID: 558251189772495743}
   - component: {fileID: 558251189772495741}
   - component: {fileID: 558251189772495745}
-  - component: {fileID: 558251189772495744}
   m_Layer: 5
   m_Name: Deck
   m_TagString: Untagged
@@ -1230,6 +1273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d403c86f057b5c4abeb971690340fcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnTransform: {fileID: 0}
   numColorSOArray:
   - {fileID: 11400000, guid: fd864879fe530fb41b4addc4d2f57cde, type: 2}
   - {fileID: 11400000, guid: c80b1024301bb7043b07c82ed17a79e6, type: 2}
@@ -1243,7 +1287,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cdfcca2f1e8e0434797d83bd6fc53bb6, type: 2}
   - {fileID: 11400000, guid: 01281ce488181ec4792a2b383c524737, type: 2}
   - {fileID: 11400000, guid: 4d8a02ced84f7d149804794d8280ac64, type: 2}
-  cell: {fileID: 2587581533645583596, guid: 53d0a9a9a86460f47b659381986553fb, type: 3}
+  cell: {fileID: 1555521300422620803, guid: 53d0a9a9a86460f47b659381986553fb, type: 3}
+  cellAnimation: {fileID: -7492537271201131187, guid: db931f78e82d8a346b4499b6a845c230,
+    type: 3}
   numForRandomGenerate:
   - 2
   - 2
@@ -1257,18 +1303,8 @@ MonoBehaviour:
   - 4
   deckSize: 4
   emptyElement: {fileID: 11400000, guid: 4d8a02ced84f7d149804794d8280ac64, type: 2}
---- !u!114 &558251189772495744
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 558251189772495735}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26e97fa583ac9514bbb73e9a8e608e6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  moveTime: 0.1
+  sizeChangeTime: 1
 --- !u!114 &558251189772495745
 MonoBehaviour:
   m_ObjectHideFlags: 0

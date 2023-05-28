@@ -10,15 +10,15 @@ public class GameBoardViewModel : MonoBehaviour
     private GridLayoutGroup deckGridLayoutGroup;
     private int deckElementsCount;
     private int deckSize;
-    public ICellViewModel[,] cellViewModels { get; private set; }
-    private IGameActionsViewModel gameActions;
+    public CellView[,] cellViews { get; private set; }
+    private GameActionsViewModel gameActions;
 
     private DeckModel model;
 
     private void Awake()
     {
-        deckGridLayoutGroup = gameObject.GetComponent<GridLayoutGroup>();
-        gameActions = GetComponent<IGameActionsViewModel>();
+        deckGridLayoutGroup = GetComponent<GridLayoutGroup>();
+
     }
 
     private void Start()
@@ -27,11 +27,15 @@ public class GameBoardViewModel : MonoBehaviour
         deckGridLayoutGroup.constraintCount = model.DeckSize;
         deckSize = model.DeckSize;
         deckElementsCount = deckSize * deckSize;
-        cellViewModels = new ICellViewModel[deckSize, deckSize];
+        cellViews = new CellView[deckSize, deckSize];
         GameInput.Instance.OnSwipeAction += OnSwipeAction;
         model.state.Subscribe(_ => OnStateChanged(_));
         GameManager.Instance.OnGamePaused += OnGamePaused;
         GameManager.Instance.OnGameUnpaused += OnGameUnpaused;
+
+
+        gameActions = new GameActionsViewModel();
+        gameActions.Init();
 
         GenerateStartDeck();
         GenerateStartingNumbers();
@@ -41,9 +45,11 @@ public class GameBoardViewModel : MonoBehaviour
     {
         for (int i = 0; i < deckElementsCount; i++)
         {
-            ICellViewModel element = LoadDeckElement(gameObject.transform);
-            element.ChangeElementNumColorSO(model.EmptyElement);
-            cellViewModels[i / deckSize, i % deckSize] = element;
+            CellView cellView = LoadDeckElement(gameObject.transform);
+            cellView.BindViewModel(new CellViewModel());
+            cellView.cellViewModel.ChangeElementNumColorSO(model.EmptyElement);
+            cellView.cellViewModel.VisualUpdate();
+            cellViews[i / deckSize, i % deckSize] = cellView;
         }
     }
 
@@ -55,17 +61,20 @@ public class GameBoardViewModel : MonoBehaviour
 
     public void GenerateNum()
     {
-        List<ICellViewModel> emptyElements = FindEmptyElements();
-        ICellViewModel rndElement = emptyElements[UnityEngine.Random.Range(0, emptyElements.Count - 1)];
+        List<CellView> emptyElements = FindEmptyElements();
+        CellView rndElement = emptyElements[UnityEngine.Random.Range(0, emptyElements.Count - 1)];
         string rndText = model.NumForRandomGenerate[UnityEngine.Random.Range(0, model.NumForRandomGenerate.Length)];
-        rndElement.ChangeElementColorNum(model.GetColorByNum(rndText), rndText);
+        rndElement.cellViewModel.ChangeElementColorNum(model.GetColorByNum(rndText), rndText);
+
+        //CellAnimator.Instance.CellCreate(rndElement);
+        rndElement.cellViewModel.VisualUpdate();
     }
 
-    public ICellViewModel LoadDeckElement(Transform deckTransform)
+    public CellView LoadDeckElement(Transform deckTransform)
     {
-        GameObject objElement = UnityEngine.Object.Instantiate(model.Cell, deckTransform, false);
+        GameObject objElement = Instantiate(model.Cell.gameObject, deckTransform, false);
 
-        return objElement.GetComponent<ICellViewModel>();
+        return objElement.GetComponent<CellView>();
 
     }
 
@@ -90,7 +99,7 @@ public class GameBoardViewModel : MonoBehaviour
     private void OnSwipeAction(object sender, SwipeData swipe)
     {
         string[,] deckElementsValuesBeforeSwipe = CopyValuesBeforeSwipe();
-        gameActions.MoveCells(swipe, cellViewModels);
+        gameActions.MoveCells(swipe, cellViews);
 
         if (ChangesExist(deckElementsValuesBeforeSwipe))
         {
@@ -99,6 +108,19 @@ public class GameBoardViewModel : MonoBehaviour
         else
         {
             GameManager.Instance.IsDefeat();
+        }
+
+        ResetAlreadyMerged();
+    }
+
+    private void ResetAlreadyMerged()
+    {
+        for (int r = 0; r < model.DeckSize; r++)
+        {
+            for (int c = 0; c < model.DeckSize; c++)
+            {
+                cellViews[r, c].cellViewModel.alreadyMerged = false;
+            }
         }
     }
 
@@ -109,19 +131,19 @@ public class GameBoardViewModel : MonoBehaviour
         {
             for (int c = 0; c < deckSize; c++)
             {
-                arrayValues[r, c] = cellViewModels[r, c].Num.Value;
+                arrayValues[r, c] = cellViews[r, c].cellViewModel.Num.Value;
             }
         }
 
         return arrayValues;
     }
 
-    private List<ICellViewModel> FindEmptyElements()
+    private List<CellView> FindEmptyElements()
     {
-        List<ICellViewModel> emptyElements = new List<ICellViewModel>();
-        foreach (ICellViewModel element in cellViewModels)
+        List<CellView> emptyElements = new List<CellView>();
+        foreach (CellView element in cellViews)
         {
-            if (element.Num.Value == model.EmptyElement.value)
+            if (element.cellViewModel.Num.Value == model.EmptyElement.value)
                 emptyElements.Add(element);
         }
         return emptyElements;
@@ -133,7 +155,7 @@ public class GameBoardViewModel : MonoBehaviour
         {
             for (int c = 0; c < deckSize; c++)
             {
-                if (!(cellViewModels[r, c].Num.Value == deckElementsValuesBeforeSwipe[r, c]))
+                if (!(cellViews[r, c].cellViewModel.Num.Value == deckElementsValuesBeforeSwipe[r, c]))
                 {
                     return true;
                 }
