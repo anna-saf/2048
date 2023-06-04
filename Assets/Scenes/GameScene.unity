@@ -501,6 +501,70 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _minDistanceForSwipe: 20
+--- !u!1 &986642621
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 986642622}
+  - component: {fileID: 986642624}
+  - component: {fileID: 986642623}
+  m_Layer: 5
+  m_Name: CellAnimator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &986642622
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 986642621}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2036571448}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
+--- !u!114 &986642623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 986642621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cf01389b805aad4eb0b3b30ed38bc3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &986642624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 986642621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50a00b460ccf2d14e8b6d6bc9ec925a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sizeChangeTime: 0.2
+  moveTime: 0.1
 --- !u!1 &1257739763
 GameObject:
   m_ObjectHideFlags: 0
@@ -636,50 +700,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1257739763}
   m_CullTransparentMesh: 0
---- !u!1 &1318383622
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1318383624}
-  - component: {fileID: 1318383623}
-  m_Layer: 0
-  m_Name: CellAnimator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1318383623
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1318383622}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cf01389b805aad4eb0b3b30ed38bc3b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &1318383624
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1318383622}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1664063321
 GameObject:
   m_ObjectHideFlags: 0
@@ -1120,6 +1140,7 @@ RectTransform:
   - {fileID: 2070738385282936147}
   - {fileID: 7700583851956203216}
   - {fileID: 1302185778586377088}
+  - {fileID: 986642622}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1288,7 +1309,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 01281ce488181ec4792a2b383c524737, type: 2}
   - {fileID: 11400000, guid: 4d8a02ced84f7d149804794d8280ac64, type: 2}
   cell: {fileID: 1555521300422620803, guid: 53d0a9a9a86460f47b659381986553fb, type: 3}
-  cellAnimation: {fileID: -7492537271201131187, guid: db931f78e82d8a346b4499b6a845c230,
+  cellAnimation: {fileID: 8626916878711855920, guid: 17f3c88018b2f924ba8d1772596d463f,
     type: 3}
   numForRandomGenerate:
   - 2
@@ -1301,10 +1322,8 @@ MonoBehaviour:
   - 2
   - 2
   - 4
-  deckSize: 4
+  deckSize: 6
   emptyElement: {fileID: 11400000, guid: 4d8a02ced84f7d149804794d8280ac64, type: 2}
-  moveTime: 0.1
-  sizeChangeTime: 1
 --- !u!114 &558251189772495745
 MonoBehaviour:
   m_ObjectHideFlags: 0

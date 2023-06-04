@@ -13,12 +13,8 @@ public class DeckModel : MonoBehaviour
     [SerializeField] private string[] numForRandomGenerate;
     [SerializeField] private int deckSize;
     [SerializeField] private NumColorSO emptyElement;
-    [SerializeField] private float moveTime = .1f;
-    [SerializeField] private float sizeChangeTime = .1f;
 
     public Transform SpawnTransform { get { return spawnTransform; } }
-    public float MoveTime { get { return moveTime; } }
-    public float SizeChangeTime { get { return moveTime; } }
     public NumColorSO[] NumColorSOArray { get { return numColorSOArray; } }
     public CellView Cell { get { return cell; } }
     public CellAnimationView CellAnimation { get { return cellAnimation; } }

@@ -66,8 +66,7 @@ public class GameBoardViewModel : MonoBehaviour
         string rndText = model.NumForRandomGenerate[UnityEngine.Random.Range(0, model.NumForRandomGenerate.Length)];
         rndElement.cellViewModel.ChangeElementColorNum(model.GetColorByNum(rndText), rndText);
 
-        //CellAnimator.Instance.CellCreate(rndElement);
-        rndElement.cellViewModel.VisualUpdate();
+        CellAnimator.Instance.CellCreate(rndElement);
     }
 
     public CellView LoadDeckElement(Transform deckTransform)
@@ -131,7 +130,7 @@ public class GameBoardViewModel : MonoBehaviour
         {
             for (int c = 0; c < deckSize; c++)
             {
-                arrayValues[r, c] = cellViews[r, c].cellViewModel.Num.Value;
+                arrayValues[r, c] = cellViews[r, c].cellViewModel.num;
             }
         }
 
@@ -143,7 +142,7 @@ public class GameBoardViewModel : MonoBehaviour
         List<CellView> emptyElements = new List<CellView>();
         foreach (CellView element in cellViews)
         {
-            if (element.cellViewModel.Num.Value == model.EmptyElement.value)
+            if (element.cellViewModel.num == model.EmptyElement.value)
                 emptyElements.Add(element);
         }
         return emptyElements;
@@ -155,7 +154,7 @@ public class GameBoardViewModel : MonoBehaviour
         {
             for (int c = 0; c < deckSize; c++)
             {
-                if (!(cellViews[r, c].cellViewModel.Num.Value == deckElementsValuesBeforeSwipe[r, c]))
+                if (!(cellViews[r, c].cellViewModel.num == deckElementsValuesBeforeSwipe[r, c]))
                 {
                     return true;
                 }

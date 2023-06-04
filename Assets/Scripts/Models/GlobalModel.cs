@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class GlobalModel : MonoBehaviour
 {
-    public static readonly string pathToConfig = Path.Combine(Directory.GetCurrentDirectory(), "Data\\Config.txt");
+    public readonly string pathToConfig = Path.Combine(Directory.GetCurrentDirectory(), "Data\\Config.txt");
 
     public class Config
     {

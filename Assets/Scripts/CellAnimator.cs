@@ -56,7 +56,7 @@ public class CellAnimator : MonoBehaviour
     private CellAnimationViewModel BindCellAnimationViewModel(CellAnimationView cellView)
     {
         CellAnimationViewModel cellAnimationViewModel = new CellAnimationViewModel();
-        cellAnimationViewModel.Init(cellView.transform);
+        cellAnimationViewModel.Init(cellView.CellAnimationRectTransform);
         cellView.BindViewModel(cellAnimationViewModel); 
         return cellView.cellViewModel;
     }

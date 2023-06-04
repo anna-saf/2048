@@ -15,7 +15,6 @@ public class GameActionsViewModel
     {
         scoreViewModel = new GameScoreViewModel();
         model = DeckModel.Instance;
-        //cellAnimator = new CellAnimator(model.SpawnTransform);
         score = model.score;
         score.Value = 0;
     }
@@ -46,139 +45,177 @@ public class GameActionsViewModel
 
     private void MoveVertical(int rowCounterStart, int direction)
     {
-        for (int c = 0; c < model.DeckSize; c++)
+        for (int col = 0; col < model.DeckSize; col++)
         {
-            int rowCounter = rowCounterStart;
-            for (int r = 0; r < model.DeckSize; r++)
+            for (int row = rowCounterStart; row != direction * -1 * (rowCounterStart - model.DeckSize); row += direction)
             {
-                if (cellViews[rowCounter, c].cellViewModel.Num.Value != model.EmptyElement.value)
+                if (cellViews[row, col].cellViewModel.num != model.EmptyElement.value)
                 {
-                    OffsetCellVertical(direction, c, rowCounter, rowCounterStart);
+                    OffsetCellVertical(direction, col, row, rowCounterStart);
                 }
-
-                rowCounter += direction;
             }
         }
-        //int lastRowForOffset = Math.Abs(rowCounterStart - (model.DeckSize - 1));
-        //SkipEmptyCellsVertical(rowCounterStart, direction, lastRowForOffset);
-        //MergeEqualsCellsVertical(rowCounterStart, direction, lastRowForOffset);
     }
 
     private void OffsetCellVertical(int direction, int column, int startRow, int firstRow)
     {
-        for(int row = startRow; row != firstRow; row -= direction)
+        bool isCellMerged = FindCellToMergeVertical(direction, column, startRow, firstRow);
+        if (!isCellMerged)
         {
-            if (cellViews[row-direction, column].cellViewModel.Num.Value == model.EmptyElement.value)
-            {
-                cellViews[row-direction, column].cellViewModel.ChangeElementColorNum(
-                    model.GetColorByNum(cellViews[row, column].cellViewModel.Num.Value), 
-                    cellViews[row, column].cellViewModel.Num.Value
-                    );
-                cellViews[row, column].cellViewModel.ChangeElementNumColorSO(model.EmptyElement);
-
-                //CellAnimator.Instance.CellTransition(cellViews[row, column], cellViews[row - direction, column], true);
-
-                cellViews[row - direction, column].cellViewModel.VisualUpdate();
-                cellViews[row, column].cellViewModel.VisualUpdate();
-            }
-            else
-            {
-                TryMergeVertical(row, column, direction);
-            }
+            FindEmptyCellVertical(direction, column, startRow, firstRow);
         }
     }
 
-    private void TryMergeVertical(int row, int column, int direction)
+    private bool FindCellToMergeVertical(int direction, int column, int startRow, int firstRow)
     {
-        if ((cellViews[row, column].cellViewModel.Num.Value == cellViews[row-direction, column].cellViewModel.Num.Value) && 
-            !cellViews[row - direction, column].cellViewModel.alreadyMerged &&
-            !cellViews[row, column].cellViewModel.alreadyMerged)
+        for (int row = startRow; row != firstRow; row -= direction)
         {
-            cellViews[row - direction, column].cellViewModel.alreadyMerged = true;
-            scoreViewModel.UpdateScore(Convert.ToInt32(cellViews[row, column].cellViewModel.Num.Value));
-            string newNum = (Convert.ToInt32(cellViews[row, column].cellViewModel.Num.Value) + 
-                            Convert.ToInt32(cellViews[row-direction, column].cellViewModel.Num.Value)).ToString();
-
-            cellViews[row-direction, column].cellViewModel.ChangeElementColorNum(model.GetColorByNum(newNum), newNum);
-            cellViews[row, column].cellViewModel.ChangeElementNumColorSO(model.EmptyElement);
-
-            //CellAnimator.Instance.CellTransition(cellViews[row, column], cellViews[row-direction, column], true);
-
-            cellViews[row - direction, column].cellViewModel.VisualUpdate();
-            cellViews[row, column].cellViewModel.VisualUpdate();
-
-            bool endGame = GameManager.Instance.IsWin(newNum);
-            if (endGame)
+            if (cellViews[row - direction, column].cellViewModel.num == model.EmptyElement.value)
             {
-                return;
+                //Ќет числа, продолжаем поиск
+                continue;
             }
+            else
+            {
+                if(cellViews[row - direction, column].cellViewModel.num == cellViews[startRow, column].cellViewModel.num)
+                {
+                    if (!cellViews[startRow, column].cellViewModel.alreadyMerged && !cellViews[row - direction, column].cellViewModel.alreadyMerged)
+                    {
+                        //ћожно сложить 2 числа
+                        string sum = MergeCells(startRow, column, row - direction, column);
+
+                        GameManager.Instance.IsWin(sum);
+
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void FindEmptyCellVertical(int direction, int column, int startRow, int firstRow)
+    {
+        if (startRow != firstRow && (cellViews[startRow - direction, column].cellViewModel.num == model.EmptyElement.value))
+        {
+            for (int row = startRow; row != firstRow; row -= direction)
+            {
+                if ((cellViews[row - direction, column].cellViewModel.num != model.EmptyElement.value) && row != startRow)
+                {
+                    //можно сдвинуть до первого непустого числа
+                    SetTransition(startRow, column, row, column);
+                    return;
+                }
+            }
+            //можно сдвинуть до самой первой €чейки
+            SetTransition(startRow, column, firstRow, column);
         }
     }
 
     private void MoveHorizontal(int columnCounterStart, int direction)
     {
-        for (int r = 0; r < model.DeckSize; r++)
+        for (int row = 0; row < model.DeckSize; row++)
         {
-            int colCounter = columnCounterStart;
-            for (int c = 0; c < model.DeckSize; c++)
+            for (int col = columnCounterStart; col != direction*-1*(columnCounterStart - model.DeckSize); col+=direction)
             {
-                if (cellViews[r, colCounter].cellViewModel.Num.Value != model.EmptyElement.value)
+                if (cellViews[row, col].cellViewModel.num != model.EmptyElement.value)
                 {
-                    OffsetCellHorizontal(direction, colCounter, r, columnCounterStart);
+                    OffsetCellHorizontal(direction, col, row, columnCounterStart);
                 }
-
-                colCounter += direction;
             }
         }
     }
 
     private void OffsetCellHorizontal(int direction, int startColumn, int row, int firstColumn)
     {
-        for (int column = startColumn; column != firstColumn; column -= direction)
+        bool isCellMerged = FindCellToMergeHorizontal(direction, startColumn, row, firstColumn);
+        if (!isCellMerged)
         {
-            if (cellViews[row, column - direction].cellViewModel.Num.Value == model.EmptyElement.value)
+            FindEmptyCellHorizontal(direction, startColumn, row, firstColumn);
+        }
+    }
+
+    private bool FindCellToMergeHorizontal(int direction, int startColumn, int row, int firstColumn)
+    {
+        for (int col = startColumn; col != firstColumn; col -= direction)
+        {
+            if (cellViews[row, col - direction].cellViewModel.num == model.EmptyElement.value)
             {
-                cellViews[row, column - direction].cellViewModel.ChangeElementColorNum(
-                    model.GetColorByNum(cellViews[row, column].cellViewModel.Num.Value),
-                    cellViews[row, column].cellViewModel.Num.Value
-                    );
-                cellViews[row, column].cellViewModel.ChangeElementNumColorSO(model.EmptyElement);
-
-                //CellAnimator.Instance.CellTransition(cellViews[row, column], cellViews[row, column - direction], true);
-
-                cellViews[row, column - direction].cellViewModel.VisualUpdate();
-                cellViews[row, column].cellViewModel.VisualUpdate();
+                //Ќет числа, продолжаем поиск
+                continue;
             }
             else
             {
-                TryMergeHorizontal(row, column, direction);
+                if (cellViews[row, col - direction].cellViewModel.num == cellViews[row, startColumn].cellViewModel.num)
+                {
+                    if (!cellViews[row, startColumn].cellViewModel.alreadyMerged && !cellViews[row, col - direction].cellViewModel.alreadyMerged)
+                    {
+                        //ћожно сложить 2 числа
+                        string sum = MergeCells(row, startColumn, row, col - direction);
+
+                        GameManager.Instance.IsWin(sum);
+
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
             }
+        }
+        return false;
+    }
+
+    private void FindEmptyCellHorizontal(int direction, int startColumn, int row, int firstColumn)
+    {
+        if (startColumn != firstColumn && (cellViews[row, startColumn - direction].cellViewModel.num == model.EmptyElement.value))
+        {
+            for (int col = startColumn; col != firstColumn; col -= direction)
+            {
+                if ((cellViews[row, col - direction].cellViewModel.num != model.EmptyElement.value) && col != startColumn)
+                {
+                    //можно сдвинуть до первого непустого числа
+                    SetTransition(row, startColumn, row, col);
+                    return;
+                }
+            }
+            //можно сдвинуть до самой первой €чейки
+            SetTransition(row, startColumn, row, firstColumn);
         }
     }
-    private void TryMergeHorizontal(int row, int column, int direction)
+
+    private void SetTransition(int startCellRow, int startCellCol, int endCellRow, int endCellCol)
     {
-        if ((cellViews[row, column].cellViewModel.Num.Value == cellViews[row, column - direction].cellViewModel.Num.Value) &&
-            !cellViews[row, column - direction].cellViewModel.alreadyMerged &&
-            !cellViews[row, column].cellViewModel.alreadyMerged)
-        {
-            cellViews[row, column - direction].cellViewModel.alreadyMerged = true;
-            scoreViewModel.UpdateScore(Convert.ToInt32(cellViews[row, column].cellViewModel.Num.Value));
-            string newNum = (Convert.ToInt32(cellViews[row, column].cellViewModel.Num.Value) +
-                            Convert.ToInt32(cellViews[row, column - direction].cellViewModel.Num.Value)).ToString();
+        cellViews[endCellRow, endCellCol].cellViewModel.ChangeElementColorNum(
+        model.GetColorByNum(cellViews[startCellRow, startCellCol].cellViewModel.num),
+                    cellViews[startCellRow, startCellCol].cellViewModel.num
+                    );
+        cellViews[startCellRow, startCellCol].cellViewModel.ChangeElementNumColorSO(model.EmptyElement);
 
-            cellViews[row, column - direction].cellViewModel.ChangeElementColorNum(model.GetColorByNum(newNum), newNum);
-            cellViews[row, column].cellViewModel.ChangeElementNumColorSO(model.EmptyElement);
+        CellAnimator.Instance.CellTransition(cellViews[startCellRow, startCellCol], cellViews[endCellRow, endCellCol], false);
 
-            //CellAnimator.Instance.CellTransition(cellViews[row, column], cellViews[row-direction, column], true);
+        //cellViews[endCellRow, endCellCol].cellViewModel.VisualUpdate();
+        //cellViews[startCellRow, startCellCol].cellViewModel.VisualUpdate();
+    }
 
-            cellViews[row, column - direction].cellViewModel.VisualUpdate();
-            cellViews[row, column].cellViewModel.VisualUpdate();
+    private string MergeCells(int startCellRow, int startCellCol, int endCellRow, int endCellCol)
+    {
+        cellViews[endCellRow, endCellCol].cellViewModel.alreadyMerged = true;
+        scoreViewModel.UpdateScore(Convert.ToInt32(cellViews[startCellRow, startCellCol].cellViewModel.num));
+        string newNum = (Convert.ToInt32(cellViews[startCellRow, startCellCol].cellViewModel.num) +
+                        Convert.ToInt32(cellViews[endCellRow, endCellCol].cellViewModel.num)).ToString();
+        cellViews[endCellRow, endCellCol].cellViewModel.ChangeElementColorNum(model.GetColorByNum(newNum), newNum);
+        cellViews[startCellRow, startCellCol].cellViewModel.ChangeElementNumColorSO(model.EmptyElement);
+        CellAnimator.Instance.CellTransition(cellViews[startCellRow, startCellCol], cellViews[endCellRow, endCellCol], true);
 
-            bool endGame = GameManager.Instance.IsWin(newNum);
-            if (endGame)
-            {
-                return;
-            }
-        }
+        //cellViews[endCellRow, endCellCol].cellViewModel.VisualUpdate();
+        //cellViews[startCellRow, startCellCol].cellViewModel.VisualUpdate();
+
+        return newNum;
     }
 }
