@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
@@ -38,9 +39,15 @@ public class GameBoardViewModel : MonoBehaviour
         gameActions.Init();
 
         GenerateStartDeck();
-        GenerateStartingNumbers();
+        StartCoroutine(GenerateStartingNumbersCoroutine());
     }
 
+    private IEnumerator GenerateStartingNumbersCoroutine()
+    {
+        yield return new WaitForFixedUpdate();
+        yield return new WaitForFixedUpdate();
+        GenerateStartingNumbers();
+    }
     private void GenerateStartDeck()
     {
         for (int i = 0; i < deckElementsCount; i++)

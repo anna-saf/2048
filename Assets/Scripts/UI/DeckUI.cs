@@ -16,6 +16,7 @@ public class DeckUI : MonoBehaviour
     private void Start()
     {
         gameObjectGridLayoutGroup = gameObject.GetComponent<GridLayoutGroup>();
+        gameObjectGridLayoutGroup.constraintCount = DeckModel.Instance.DeckSize;
         deckRect = GetComponent<RectTransform>();
         CorrectSize();
         CorrectGrid();
