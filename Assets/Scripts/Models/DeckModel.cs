@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-using static GameModel;
 
 public class DeckModel : MonoBehaviour
 {
